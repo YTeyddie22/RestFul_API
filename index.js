@@ -1,6 +1,9 @@
 //? Libraries
-//for http server;
+//for http snd https server;
 const http = require('http');
+const https = require('https');
+
+const { readFileSync } = require('fs');
 
 //For the Url;
 const url = require('url');
@@ -19,7 +22,37 @@ const config = require('./config');
 
 //! 1. Creating a http server
 
-const httpServer = http.createServer(function (req, res) {
+const httpServer = http.createServer((req, res) => {
+	serverCreator(req, res);
+});
+
+//! 2 Creating a https server
+const httpsOptions = {
+	key: readFileSync('./https/key.pem'),
+	cert: readFileSync('./https/cert.pem'),
+};
+
+const httpsServer = https.createServer(httpsOptions, (req, res) => {
+	serverCreator(req, res);
+});
+
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+//! 2i Start the http server and it should be listening to a port
+
+httpServer.listen(config.httpPort, function () {
+	console.log(`Server is listening on ${config.httpPort}`);
+});
+
+/////////////////////////////////////////
+
+//!Start the https server and it should be listening to https port
+
+httpsServer.listen(config.httpsPort, function () {
+	console.log(`Server is listening on ${config.httpsPort}`);
+});
+
+const serverCreator = function (req, res) {
 	//*1. Get Url and parse it
 
 	const parsedUrl = url.parse(req.url, true);
@@ -112,15 +145,9 @@ const httpServer = http.createServer(function (req, res) {
 			console.log(`Returning this response: `, statusCode, payloadString);
 		});
 	});
-});
+};
 
 //////////////////////////////////////////////////////////////////////////////////////////
-
-//! 2 Start the server and it should be listening to a port
-
-httpServer.listen(config.port, function () {
-	console.log(`Server is listening on ${config.port}`);
-});
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
@@ -128,10 +155,10 @@ httpServer.listen(config.port, function () {
 const handlers = {};
 
 //*1 Sample object
-handlers.sample = function (data, callback) {
+handlers.ping = function (data, callback) {
 	//*Callback http status code and object Payload
 
-	callback(406, { name: 'sample handler' });
+	callback(200);
 };
 
 //*2 Not found handlers
@@ -144,5 +171,5 @@ handlers.notFound = function (data, callback) {
 
 //!3. Creating a request router
 const router = {
-	sample: handlers.sample,
+	ping: handlers.ping,
 };
