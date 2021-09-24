@@ -1,6 +1,6 @@
-//Create and export varables
+//Create and export variables
 
-//!Enviroments
+//!Environments
 
 const environments = {};
 
