@@ -16,7 +16,9 @@ const { StringDecoder } = require('string_decoder');
 
 //?FILES
 //importing the config file
-const config = require('./config');
+const config = require('./lib/config');
+const handlers = require('./lib/libhandlers');
+const helpers = require('./lib/helpers');
 
 /////////////////////////////////////////////////////////////////////////////////////
 
@@ -108,7 +110,7 @@ const serverCreator = function (req, res) {
 			queryStringObject: queryStringObject,
 			method: method,
 			header: header,
-			payload: buffer,
+			payload: helpers.parseJsonToObject(buffer),
 		};
 
 		///////////////////////////////////////////////////////////////////////////////////////////////////
@@ -149,27 +151,8 @@ const serverCreator = function (req, res) {
 
 //////////////////////////////////////////////////////////////////////////////////////////
 
-///////////////////////////////////////////////////////////////////////////////////////
-
-//?1. Creating a Handler object
-const handlers = {};
-
-//*1 Sample object
-handlers.ping = function (data, callback) {
-	//*Callback http status code and object Payload
-
-	callback(200);
-};
-
-//*2 Not found handlers
-
-handlers.notFound = function (data, callback) {
-	callback(404);
-};
-
-///////////////////////////////////////////////////////////////////////////////////////////
-
 //!3. Creating a request router
 const router = {
 	ping: handlers.ping,
+	users: handlers.users,
 };
